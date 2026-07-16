@@ -6,11 +6,21 @@ from models import User
 from schemas import UserCreate, UserResponse
 from auth import hash_password
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+router = APIRouter(
+    prefix="/auth",
+    tags=["Authentication"]
+)
+
 
 @router.post("/register", response_model=UserResponse)
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.email == user.email).first()
+def register(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
+    existing_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
 
     if existing_user:
         raise HTTPException(

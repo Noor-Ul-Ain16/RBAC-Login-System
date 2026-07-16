@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class UserCreate(BaseModel):
     username: str
     email: str
@@ -26,31 +27,18 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class RoleCreate(BaseModel): # when creating a new role
 
+class RoleCreate(BaseModel):
     role_name: str
 
-class RoleUpdate(BaseModel): # when updating an existing role
 
+class RoleUpdate(BaseModel):
     role_name: str
 
-class RoleResponse(BaseModel): # for responses sent back to the client
 
+class RoleResponse(BaseModel):
     id: int
     role_name: str
 
     class Config:
-        from_attributes = True    # Pydantic v2
-
-class RoleCreate(BaseModel): # when creating a new role
-    name: str
-
-class RoleUpdate(BaseModel): # when updating an existing role
-    name: str
-
-class RoleResponse(BaseModel): # for responses sent back to the client
-    id: int
-    name: str
-
-    class Config:
-        from_attributes = True    # Pydantic v2
+        from_attributes = True
