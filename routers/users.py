@@ -40,12 +40,16 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 # ==========================
 # Update User
 # ==========================
+# ==========================
+# Update User
+# ==========================
 @router.put("/{user_id}", response_model=UserResponse)
 def update_user(
     user_id: int,
     updated_user: UserUpdate,
     db: Session = Depends(get_db)
 ):
+    # Find the user
     user = db.query(User).filter(
         User.id == user_id
     ).first()
@@ -56,6 +60,42 @@ def update_user(
             detail="User not found"
         )
 
+    # Check if username is already taken by another user
+    existing_username = db.query(User).filter(
+        User.username == updated_user.username,
+        User.id != user_id
+    ).first()
+
+    if existing_username:
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists"
+        )
+
+    # Check if email is already registered by another user
+    existing_email = db.query(User).filter(
+        User.email == updated_user.email,
+        User.id != user_id
+    ).first()
+
+    if existing_email:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered"
+        )
+
+    # Check if the selected role exists
+    role = db.query(Role).filter(
+        Role.id == updated_user.role_id
+    ).first()
+
+    if not role:
+        raise HTTPException(
+            status_code=404,
+            detail="Role not found"
+        )
+
+    # Update user information
     user.username = updated_user.username
     user.email = updated_user.email
     user.role_id = updated_user.role_id
@@ -64,7 +104,6 @@ def update_user(
     db.refresh(user)
 
     return user
-
 
 # ==========================
 # Delete User

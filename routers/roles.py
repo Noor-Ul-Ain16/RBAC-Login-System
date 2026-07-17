@@ -53,6 +53,17 @@ def get_all_roles(
 
 
 # ==========================
+# Admin Dashboard (RBAC Test)
+# ==========================
+@router.get("/admin")
+def admin_dashboard(
+    current_user=Depends(require_role("Admin"))
+):
+    return {
+        "message": "Welcome to Admin Dashboard"
+    }
+
+# ==========================
 # Get Role By ID
 # ==========================
 @router.get("/{role_id}", response_model=RoleResponse)
@@ -123,16 +134,4 @@ def delete_role(
 
     return {
         "message": "Role deleted successfully"
-    }
-
-
-# ==========================
-# Admin Dashboard (RBAC Test)
-# ==========================
-@router.get("/admin")
-def admin_dashboard(
-    current_user=Depends(require_role("Admin"))
-):
-    return {
-        "message": "Welcome to Admin Dashboard"
     }

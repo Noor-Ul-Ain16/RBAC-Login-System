@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from schemas import UserLogin, Token
 from auth import verify_password, create_access_token
 from database import get_db
-from models import User
+from models import User,Role
 from schemas import UserCreate, UserResponse
+from dependencies import get_current_user
 from auth import hash_password
 
 
@@ -19,6 +20,7 @@ def register(
     user: UserCreate,
     db: Session = Depends(get_db)
 ):
+    # Check if email already exists
     existing_user = db.query(User).filter(
         User.email == user.email
     ).first()
@@ -29,8 +31,21 @@ def register(
             detail="Email already registered"
         )
 
+    # Check if the selected role exists
+    role = db.query(Role).filter(
+        Role.id == user.role_id
+    ).first()
+
+    if not role:
+        raise HTTPException(
+            status_code=404,
+            detail="Role not found"
+        )
+
+    # Hash the password
     hashed_password = hash_password(user.password)
 
+    # Create the new user
     new_user = User(
         username=user.username,
         email=user.email,
@@ -81,3 +96,9 @@ def login(
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+@router.get("/me", response_model=UserResponse)
+def get_me(
+    current_user: User = Depends(get_current_user)
+):
+    return current_user
