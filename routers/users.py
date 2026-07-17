@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import User
+from models import User , Role
 from schemas import UserResponse, UserUpdate
 
 router = APIRouter(
@@ -89,4 +89,48 @@ def delete_user(
 
     return {
         "message": "User deleted successfully"
+    }
+
+
+# ==========================
+# Assign Role to User
+# ==========================
+@router.put("/{user_id}/role")
+def assign_role(
+    user_id: int,
+    role_id: int,
+    db: Session = Depends(get_db)
+):
+    # Find the user
+    user = db.query(User).filter(
+        User.id == user_id
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    # Check if the role exists
+    role = db.query(Role).filter(
+        Role.id == role_id
+    ).first()
+
+    if not role:
+        raise HTTPException(
+            status_code=404,
+            detail="Role not found"
+        )
+
+    # Assign the role
+    user.role_id = role_id
+
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "message": f"Role '{role.role_name}' assigned successfully.",
+        "user_id": user.id,
+        "role_id": role.id
     }
