@@ -7,7 +7,7 @@ from models import User,Role
 from schemas import UserCreate, UserResponse
 from dependencies import get_current_user
 from auth import hash_password
-
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(
     prefix="/auth",
@@ -58,27 +58,26 @@ def register(
     db.refresh(new_user)
 
     return new_user
-
 @router.post("/login", response_model=Token)
 def login(
-    user: UserLogin,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     # Find the user by email
     db_user = db.query(User).filter(
-        User.email == user.email
+        User.email == form_data.username
     ).first()
 
-    # If user doesn't exist
+    # Check if user exists
     if not db_user:
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password"
         )
 
-    # Verify the password
+    # Verify password
     if not verify_password(
-        user.password,
+        form_data.password,
         db_user.password
     ):
         raise HTTPException(
@@ -91,7 +90,6 @@ def login(
         data={"user_id": db_user.id}
     )
 
-    # Return the token
     return {
         "access_token": access_token,
         "token_type": "bearer"
