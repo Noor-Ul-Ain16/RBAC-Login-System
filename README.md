@@ -226,7 +226,6 @@ http://localhost:5173
 The application was tested using:
 
 - Swagger UI
-- Postman
 
 ---
 
