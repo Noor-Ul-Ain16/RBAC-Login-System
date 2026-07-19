@@ -57,7 +57,14 @@ def register(
     db.commit()
     db.refresh(new_user)
 
-    return new_user
+    return {
+    "id": new_user.id,
+    "username": new_user.username,
+    "email": new_user.email,
+    "role_id": new_user.role_id,
+    "role_name": new_user.role.role_name if new_user.role else None,
+}
+
 @router.post("/login", response_model=Token)
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -99,4 +106,10 @@ def login(
 def get_me(
     current_user: User = Depends(get_current_user)
 ):
-    return current_user
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "role_id": current_user.role_id,
+        "role_name": current_user.role.role_name if current_user.role else None,
+    }

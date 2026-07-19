@@ -103,13 +103,23 @@ def update_role(
             detail="Role not found"
         )
 
+    existing_role = db.query(Role).filter(
+        Role.role_name == role.role_name,
+        Role.id != role_id
+    ).first()
+
+    if existing_role:
+        raise HTTPException(
+            status_code=400,
+            detail="Role already exists"
+        )
+
     db_role.role_name = role.role_name
 
     db.commit()
     db.refresh(db_role)
 
     return db_role
-
 
 # ==========================
 # Delete Role

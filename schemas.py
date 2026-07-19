@@ -18,10 +18,10 @@ class UserResponse(BaseModel):
     username: str
     email: str
     role_id: int
+    role_name: str | None = None
 
     class Config:
         from_attributes = True
-
 
 class Token(BaseModel):
     access_token: str
