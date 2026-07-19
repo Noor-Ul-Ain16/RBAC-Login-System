@@ -102,15 +102,24 @@ def update_user(
             detail="Email already registered"
         )
 
+    print("Received role_id:", updated_user.role_id)
+
+    all_roles = db.query(Role).all()
+    print("Roles in database:")
+    for r in all_roles:
+        print(r.id, r.role_name)
+
     role = db.query(Role).filter(
         Role.id == updated_user.role_id
-    ).first()
+        ).first()
+
+    print("Query result:", role)
 
     if not role:
         raise HTTPException(
-            status_code=404,
-            detail="Role not found"
-        )
+        status_code=404,
+        detail=f"Role ID {updated_user.role_id} not found"
+    )
 
     user.username = updated_user.username
     user.email = updated_user.email
